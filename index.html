@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#07111f">
-  <title>Kamerás villanyóra mérő</title>
+
+  <title>Villanyóra kamera mérő</title>
 
   <style>
     * {
@@ -13,222 +14,194 @@
 
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #07111f;
-      color: #f4f7fb;
+      color: white;
+      font-family: system-ui, sans-serif;
     }
 
     .app {
       max-width: 700px;
       margin: auto;
-      padding: 16px;
+      padding: 15px;
     }
 
     h1 {
-      margin: 5px 0 4px;
-      font-size: 25px;
+      margin: 5px 0;
     }
 
     .subtitle {
-      color: #9baabd;
-      margin-bottom: 18px;
+      color: #9aaabd;
+      margin-bottom: 15px;
     }
 
-    .camera-box {
+    .camera {
       position: relative;
       width: 100%;
       aspect-ratio: 4 / 3;
+      background: black;
       overflow: hidden;
-      border-radius: 18px;
-      background: #000;
-      border: 2px solid #26374d;
+      border-radius: 16px;
+      border: 2px solid #26384e;
     }
 
     video {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block;
     }
 
     /*
-      A kamera közepén lévő zöld négyzetet kell
-      a villanyóra impulzus-LED-jére igazítani.
+      Nincs érzékelő négyzet.
+      A teljes kamera képe számít.
     */
-    .target {
+
+    .flash-indicator {
       position: absolute;
-      width: 100px;
-      height: 100px;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      border: 3px solid #00ff88;
-      border-radius: 12px;
-      box-shadow:
-        0 0 0 9999px rgba(0,0,0,.28),
-        0 0 20px rgba(0,255,136,.7);
-      pointer-events: none;
+      top: 12px;
+      right: 12px;
+
+      width: 18px;
+      height: 18px;
+
+      border-radius: 50%;
+
+      background: #263747;
+      border: 2px solid #5a718b;
     }
 
-    .target.flash {
-      border-color: #fff;
+    .flash-indicator.flash {
+      background: #00ff88;
+      border-color: white;
+
       box-shadow:
-        0 0 0 9999px rgba(0,0,0,.2),
-        0 0 35px 10px rgba(0,255,136,.95);
+        0 0 10px #00ff88,
+        0 0 30px #00ff88;
     }
 
     .status {
-      margin-top: 12px;
-      padding: 11px 14px;
-      border-radius: 10px;
+      margin-top: 10px;
+      padding: 11px;
       background: #101d2e;
+      border-radius: 10px;
       color: #aebdd0;
-      font-size: 14px;
-    }
-
-    .status.ok {
-      color: #5dffa8;
-    }
-
-    .status.warn {
-      color: #ffd166;
     }
 
     .power {
-      margin-top: 16px;
-      padding: 20px;
-      border-radius: 18px;
-      background: linear-gradient(145deg, #10243b, #0c1828);
+      margin-top: 14px;
       text-align: center;
-      border: 1px solid #243b55;
+      padding: 20px;
+
+      border-radius: 16px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #10243b,
+          #0b1727
+        );
     }
 
-    .power-label {
-      color: #9baabd;
+    .label {
+      color: #91a4b9;
       font-size: 14px;
     }
 
     .power-value {
-      margin: 4px 0;
-      font-size: 48px;
+      font-size: 50px;
       font-weight: 800;
-      letter-spacing: -2px;
       color: #5dffa8;
     }
 
-    .power-unit {
-      color: #aebdd0;
+    .unit {
+      color: #9eafc2;
     }
 
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 12px;
+      margin-top: 10px;
     }
 
     .card {
       background: #101d2e;
-      border: 1px solid #22354c;
-      border-radius: 14px;
+      border: 1px solid #22364e;
+      border-radius: 13px;
       padding: 14px;
     }
 
-    .card-label {
-      color: #899bb0;
+    .card-title {
+      color: #8fa1b5;
       font-size: 13px;
     }
 
     .card-value {
       font-size: 23px;
-      font-weight: 700;
+      font-weight: bold;
       margin-top: 4px;
     }
 
-    .controls {
-      margin-top: 14px;
+    .settings {
+      margin-top: 12px;
       background: #101d2e;
-      border: 1px solid #22354c;
-      border-radius: 16px;
-      padding: 16px;
+      padding: 15px;
+      border-radius: 15px;
     }
 
     label {
       display: block;
+      color: #b9c7d6;
       margin-bottom: 7px;
-      color: #b7c5d6;
-      font-size: 14px;
     }
 
     input {
       width: 100%;
       padding: 12px;
-      border-radius: 10px;
+
+      border-radius: 9px;
       border: 1px solid #334b65;
-      background: #081321;
+
+      background: #071321;
       color: white;
+
       font-size: 17px;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: #00d978;
-    }
-
-    .buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 12px;
     }
 
     button {
+      width: 100%;
+      margin-top: 10px;
+
+      padding: 13px;
+
       border: 0;
-      border-radius: 11px;
-      padding: 13px 10px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      color: #06120c;
+      border-radius: 10px;
+
       background: #5dffa8;
+      color: #06120c;
+
+      font-size: 16px;
+      font-weight: bold;
     }
 
     button.secondary {
-      background: #263b52;
-      color: #e8f0f8;
-    }
-
-    button:disabled {
-      opacity: .5;
+      background: #293d54;
+      color: white;
     }
 
     .help {
-      margin-top: 16px;
+      margin-top: 12px;
       padding: 14px;
-      border-radius: 14px;
+
       background: #0c1827;
+      border-radius: 13px;
+
       color: #9eafc2;
       font-size: 13px;
       line-height: 1.5;
     }
 
-    .help strong {
-      color: #dce8f5;
-    }
-
     canvas {
       display: none;
-    }
-
-    @media (max-width: 430px) {
-      .power-value {
-        font-size: 42px;
-      }
-
-      .target {
-        width: 80px;
-        height: 80px;
-      }
     }
   </style>
 </head>
@@ -238,45 +211,91 @@
 <div class="app">
 
   <h1>⚡ Villanyóra mérő</h1>
+
   <div class="subtitle">
-    Kamera alapján méri az impulzus-LED villogását
+    A teljes kamera képe alapján érzékeli a LED villanását
   </div>
 
-  <div class="camera-box">
-    <video id="video" autoplay playsinline muted></video>
-    <div id="target" class="target"></div>
+  <div class="camera">
+
+    <video
+      id="video"
+      autoplay
+      playsinline
+      muted>
+    </video>
+
+    <div
+      id="flashIndicator"
+      class="flash-indicator">
+    </div>
+
   </div>
 
-  <div id="status" class="status">
+  <div
+    id="status"
+    class="status">
     Kamera indítása...
   </div>
 
   <div class="power">
-    <div class="power-label">Pillanatnyi fogyasztás</div>
-    <div id="power" class="power-value">–</div>
-    <div class="power-unit">W</div>
+
+    <div class="label">
+      Pillanatnyi fogyasztás
+    </div>
+
+    <div
+      id="power"
+      class="power-value">
+      –
+    </div>
+
+    <div class="unit">
+      W
+    </div>
+
   </div>
 
   <div class="grid">
 
     <div class="card">
-      <div class="card-label">Utolsó impulzus</div>
-      <div id="interval" class="card-value">–</div>
-      <div class="card-label">másodperc</div>
+
+      <div class="card-title">
+        Utolsó periódus
+      </div>
+
+      <div
+        id="interval"
+        class="card-value">
+        –
+      </div>
+
+      <div class="card-title">
+        másodperc
+      </div>
+
     </div>
 
     <div class="card">
-      <div class="card-label">Impulzusok</div>
-      <div id="pulses" class="card-value">0</div>
-      <div class="card-label">észlelve</div>
+
+      <div class="card-title">
+        Észlelt impulzusok
+      </div>
+
+      <div
+        id="pulses"
+        class="card-value">
+        0
+      </div>
+
     </div>
 
   </div>
 
-  <div class="controls">
+  <div class="settings">
 
     <label for="impKwh">
-      Villanyóra impulzusértéke (imp/kWh)
+      Villanyóra értéke (imp/kWh)
     </label>
 
     <input
@@ -284,38 +303,37 @@
       type="number"
       value="1000"
       min="1"
-      step="1"
-    >
+      step="1">
 
-    <div class="buttons">
+    <button id="start">
+      📷 Kamera indítása
+    </button>
 
-      <button id="startBtn">
-        📷 Kamera indítása
-      </button>
-
-      <button id="resetBtn" class="secondary">
-        ↺ Nullázás
-      </button>
-
-    </div>
+    <button
+      id="reset"
+      class="secondary">
+      ↺ Mérés nullázása
+    </button>
 
   </div>
 
   <div class="help">
 
-    <strong>Használat:</strong><br><br>
+    <strong>Használat</strong><br><br>
 
-    1. Nézd meg a villanyórán az impulzus-LED mellett lévő értéket.
-    Gyakori például a <strong>1000 imp/kWh</strong> vagy
-    <strong>2000 imp/kWh</strong>.<br><br>
+    A kamera teljes képét figyeljük, ezért a LED-nek
+    nem kell középen lennie.<br><br>
 
-    2. Írd be ezt az értéket fent.<br><br>
+    Irányítsd a kamerát úgy, hogy a villanyóra és a
+    villogó LED jól látható legyen.<br><br>
 
-    3. Indítsd el a kamerát, majd igazítsd a zöld négyzetet
-    a villanyóra villogó LED-jére.<br><br>
+    A villanyórán keresd például:
+    <strong>1000 imp/kWh</strong>,
+    <strong>2000 imp/kWh</strong> vagy
+    <strong>3200 imp/kWh</strong>.<br><br>
 
-    4. A készülék a két villanás közötti időből számolja az
-    aktuális teljesítményt.
+    A két villanás közötti időből számoljuk ki
+    a pillanatnyi teljesítményt.
   </div>
 
 </div>
@@ -324,380 +342,545 @@
 
 <script>
 
-  const video = document.getElementById("video");
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d", {
-    willReadFrequently: true
-  });
+const video =
+  document.getElementById("video");
 
-  const statusEl = document.getElementById("status");
-  const powerEl = document.getElementById("power");
-  const intervalEl = document.getElementById("interval");
-  const pulsesEl = document.getElementById("pulses");
-  const impKwhEl = document.getElementById("impKwh");
-  const target = document.getElementById("target");
+const canvas =
+  document.getElementById("canvas");
 
-  const startBtn = document.getElementById("startBtn");
-  const resetBtn = document.getElementById("resetBtn");
+const ctx =
+  canvas.getContext(
+    "2d",
+    {
+      willReadFrequently: true
+    }
+  );
 
-  let stream = null;
-  let running = false;
+const power =
+  document.getElementById("power");
 
-  let lastPulseTime = null;
-  let pulseCount = 0;
+const interval =
+  document.getElementById("interval");
 
-  /*
-    LED érzékeléshez használt állapotok.
-  */
-  let previousBrightness = 0;
-  let isBright = false;
+const pulses =
+  document.getElementById("pulses");
 
-  /*
-    Ezeket szükség esetén lehet finomhangolni.
-  */
-  const BRIGHTNESS_THRESHOLD = 145;
-  const HYSTERESIS = 25;
+const status =
+  document.getElementById("status");
 
-  /*
-    Minimális idő két impulzus között.
-    Ez megakadályozza, hogy egyetlen villanást
-    többször érzékeljünk.
-  */
-  const MIN_PULSE_INTERVAL = 180;
+const indicator =
+  document.getElementById("flashIndicator");
 
-  let lastDetectionTime = 0;
+const impInput =
+  document.getElementById("impKwh");
 
-  function setStatus(text, type = "") {
-    statusEl.textContent = text;
-    statusEl.className = "status " + type;
+const startButton =
+  document.getElementById("start");
+
+const resetButton =
+  document.getElementById("reset");
+
+
+let stream = null;
+
+let running = false;
+
+let lastPulse = null;
+
+let pulseCount = 0;
+
+let bright = false;
+
+let lastDetection = 0;
+
+
+/*
+  Érzékelési beállítások.
+*/
+
+const MIN_PULSE_TIME = 200;
+
+
+/*
+  A teljes kamera képének átlagos fényerejét
+  vizsgáljuk.
+*/
+
+let previousBrightness = 0;
+
+let baseline = 0;
+
+
+/*
+  Kamera indítása
+*/
+
+async function startCamera() {
+
+  try {
+
+    stream =
+      await navigator.mediaDevices
+        .getUserMedia({
+
+          video: {
+
+            facingMode: {
+              ideal: "environment"
+            },
+
+            width: {
+              ideal: 1280
+            },
+
+            height: {
+              ideal: 720
+            }
+
+          },
+
+          audio: false
+
+        });
+
+
+    video.srcObject = stream;
+
+    await video.play();
+
+    running = true;
+
+    startButton.textContent =
+      "⏹ Kamera leállítása";
+
+    status.textContent =
+      "Figyelem a teljes kamera képet...";
+
+    requestAnimationFrame(
+      processFrame
+    );
+
   }
 
-  async function startCamera() {
+  catch (error) {
 
-    if (running) {
-      return;
-    }
+    console.error(error);
 
-    try {
+    status.textContent =
+      "Kamera hiba: " +
+      error.message;
 
-      if (!navigator.mediaDevices ||
-          !navigator.mediaDevices.getUserMedia) {
-
-        throw new Error(
-          "A böngésző nem támogatja a kamera hozzáférést."
-        );
-      }
-
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: {
-            ideal: "environment"
-          },
-          width: {
-            ideal: 1280
-          },
-          height: {
-            ideal: 720
-          }
-        },
-        audio: false
-      });
-
-      video.srcObject = stream;
-
-      await video.play();
-
-      running = true;
-
-      startBtn.textContent = "⏹ Kamera leállítása";
-
-      setStatus(
-        "Kamera működik – igazítsd a zöld négyzetet a LED-re.",
-        "ok"
-      );
-
-      requestAnimationFrame(processFrame);
-
-    } catch (error) {
-
-      console.error(error);
-
-      setStatus(
-        "Nem sikerült elindítani a kamerát: " + error.message,
-        "warn"
-      );
-    }
   }
 
-  function stopCamera() {
+}
 
-    running = false;
 
-    if (stream) {
+/*
+  Kamera leállítása
+*/
 
-      stream.getTracks().forEach(track => {
+function stopCamera() {
+
+  running = false;
+
+  if (stream) {
+
+    stream
+      .getTracks()
+      .forEach(track => {
         track.stop();
       });
 
-      stream = null;
-    }
-
-    video.srcObject = null;
-
-    startBtn.textContent = "📷 Kamera indítása";
-
-    setStatus("Kamera leállítva.");
+    stream = null;
   }
 
-  startBtn.addEventListener("click", () => {
+  video.srcObject = null;
+
+  startButton.textContent =
+    "📷 Kamera indítása";
+
+  status.textContent =
+    "Kamera leállítva.";
+
+}
+
+
+/*
+  Teljes kép fényerejének meghatározása
+*/
+
+function getBrightness() {
+
+  if (
+    !video.videoWidth ||
+    !video.videoHeight
+  ) {
+    return 0;
+  }
+
+
+  /*
+    Nem kell minden pixelt feldolgozni.
+    160×120-as képre lekicsinyítjük.
+  */
+
+  canvas.width = 160;
+  canvas.height = 120;
+
+
+  ctx.drawImage(
+    video,
+    0,
+    0,
+    160,
+    120
+  );
+
+
+  const data =
+    ctx.getImageData(
+      0,
+      0,
+      160,
+      120
+    ).data;
+
+
+  let total = 0;
+
+  let count = 0;
+
+
+  /*
+    Minden 4. pixelt használjuk.
+  */
+
+  for (
+    let i = 0;
+    i < data.length;
+    i += 16
+  ) {
+
+    const r = data[i];
+
+    const g = data[i + 1];
+
+    const b = data[i + 2];
+
+
+    /*
+      Emberi szemhez hasonló
+      fényerő-közelítés.
+    */
+
+    total +=
+      0.299 * r +
+      0.587 * g +
+      0.114 * b;
+
+    count++;
+  }
+
+
+  return total / count;
+
+}
+
+
+/*
+  A teljes képen bekövetkező
+  gyors fényváltozás érzékelése.
+*/
+
+function detectFlash(brightness) {
+
+  const now =
+    performance.now();
+
+
+  /*
+    Az első néhány képkockán
+    felépítjük az alapfényességet.
+  */
+
+  if (baseline === 0) {
+
+    baseline = brightness;
+
+    previousBrightness =
+      brightness;
+
+    return;
+  }
+
+
+  /*
+    Nagyon lassan követjük a
+    környezeti fény változását.
+  */
+
+  baseline =
+    baseline * 0.995 +
+    brightness * 0.005;
+
+
+  /*
+    A villanás akkor érdekes, ha
+    gyorsan és jelentősen nő a fény.
+  */
+
+  const difference =
+    brightness - previousBrightness;
+
+
+  /*
+    Adaptív küszöb.
+
+    Minél sötétebb a kép,
+    annál kisebb változást is
+    elfogadunk.
+  */
+
+  const threshold =
+    Math.max(
+      7,
+      baseline * 0.08
+    );
+
+
+  if (
+    !bright &&
+    difference > threshold &&
+    brightness > baseline * 1.05 &&
+    now - lastDetection > MIN_PULSE_TIME
+  ) {
+
+    bright = true;
+
+    lastDetection = now;
+
+    registerPulse();
+
+  }
+
+
+  /*
+    A villanás vége.
+  */
+
+  if (
+    bright &&
+    brightness <
+      previousBrightness - 3
+  ) {
+
+    bright = false;
+
+  }
+
+
+  previousBrightness =
+    previousBrightness * 0.75 +
+    brightness * 0.25;
+
+}
+
+
+/*
+  Impulzus feldolgozása
+*/
+
+function registerPulse() {
+
+  pulseCount++;
+
+  pulses.textContent =
+    pulseCount;
+
+
+  indicator.classList.add(
+    "flash"
+  );
+
+
+  setTimeout(() => {
+
+    indicator.classList.remove(
+      "flash"
+    );
+
+  }, 150);
+
+
+  const now =
+    performance.now();
+
+
+  if (lastPulse !== null) {
+
+    const seconds =
+      (now - lastPulse) / 1000;
+
+
+    interval.textContent =
+      seconds.toFixed(2);
+
+
+    calculatePower(
+      seconds
+    );
+
+  }
+
+
+  lastPulse = now;
+
+
+  status.textContent =
+    "💡 Villanás érzékelve";
+
+}
+
+
+/*
+  W számítása
+*/
+
+function calculatePower(
+  seconds
+) {
+
+  const impKwh =
+    Number(
+      impInput.value
+    );
+
+
+  if (
+    !impKwh ||
+    impKwh <= 0 ||
+    seconds <= 0
+  ) {
+    return;
+  }
+
+
+  /*
+    W =
+    3 600 000 /
+    (imp/kWh × másodperc)
+  */
+
+  const watts =
+    3600000 /
+    (
+      impKwh *
+      seconds
+    );
+
+
+  if (watts < 100) {
+
+    power.textContent =
+      watts.toFixed(1);
+
+  }
+
+  else {
+
+    power.textContent =
+      Math.round(
+        watts
+      ).toLocaleString(
+        "hu-HU"
+      );
+
+  }
+
+}
+
+
+/*
+  Folyamatos képfeldolgozás
+*/
+
+function processFrame() {
+
+  if (!running) {
+    return;
+  }
+
+
+  const brightness =
+    getBrightness();
+
+
+  detectFlash(
+    brightness
+  );
+
+
+  requestAnimationFrame(
+    processFrame
+  );
+
+}
+
+
+/*
+  Gombok
+*/
+
+startButton.addEventListener(
+  "click",
+  () => {
 
     if (running) {
       stopCamera();
-    } else {
+    }
+
+    else {
       startCamera();
     }
 
-  });
+  }
+);
 
-  resetBtn.addEventListener("click", () => {
 
-    lastPulseTime = null;
+resetButton.addEventListener(
+  "click",
+  () => {
+
+    lastPulse = null;
+
     pulseCount = 0;
+
+    bright = false;
+
+    lastDetection = 0;
+
     previousBrightness = 0;
-    isBright = false;
-    lastDetectionTime = 0;
 
-    powerEl.textContent = "–";
-    intervalEl.textContent = "–";
-    pulsesEl.textContent = "0";
+    baseline = 0;
 
-    setStatus(
+
+    pulses.textContent =
+      "0";
+
+    interval.textContent =
+      "–";
+
+    power.textContent =
+      "–";
+
+
+    status.textContent =
       running
-        ? "Mérés nullázva. Várom a következő impulzust..."
-        : "Mérés nullázva."
-    );
-  });
+        ? "Mérés nullázva."
+        : "Mérés nullázva.";
 
-  /*
-    A kamera képéből egy kis középső területet vizsgálunk.
-    Ez gyorsabb és stabilabb, mint az egész képet feldolgozni.
-  */
-  function getTargetBrightness() {
-
-    if (!video.videoWidth || !video.videoHeight) {
-      return 0;
-    }
-
-    /*
-      A zöld négyzet aránya a videóhoz képest.
-    */
-    const size = Math.min(
-      video.videoWidth,
-      video.videoHeight
-    ) * 0.14;
-
-    const x =
-      (video.videoWidth - size) / 2;
-
-    const y =
-      (video.videoHeight - size) / 2;
-
-    canvas.width = 100;
-    canvas.height = 100;
-
-    ctx.drawImage(
-      video,
-      x,
-      y,
-      size,
-      size,
-      0,
-      0,
-      100,
-      100
-    );
-
-    const data =
-      ctx.getImageData(
-        0,
-        0,
-        100,
-        100
-      ).data;
-
-    let sum = 0;
-
-    for (let i = 0; i < data.length; i += 4) {
-
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
-
-      /*
-        A fényerő közelítő számítása.
-      */
-      const brightness =
-        0.299 * r +
-        0.587 * g +
-        0.114 * b;
-
-      sum += brightness;
-    }
-
-    return sum / (data.length / 4);
   }
-
-  function detectPulse(brightness) {
-
-    const now = performance.now();
-
-    /*
-      Dinamikus küszöb:
-      a környezet változásait részben követi.
-    */
-
-    if (!isBright) {
-
-      if (
-        brightness > BRIGHTNESS_THRESHOLD &&
-        brightness > previousBrightness + 8 &&
-        now - lastDetectionTime > MIN_PULSE_INTERVAL
-      ) {
-
-        isBright = true;
-
-        lastDetectionTime = now;
-
-        registerPulse();
-      }
-
-    } else {
-
-      if (
-        brightness <
-        BRIGHTNESS_THRESHOLD - HYSTERESIS
-      ) {
-
-        isBright = false;
-      }
-    }
-
-    /*
-      Lassú háttérváltozás követése.
-    */
-    previousBrightness =
-      previousBrightness * 0.92 +
-      brightness * 0.08;
-  }
-
-  function registerPulse() {
-
-    pulseCount++;
-
-    pulsesEl.textContent = pulseCount;
-
-    target.classList.add("flash");
-
-    setTimeout(() => {
-      target.classList.remove("flash");
-    }, 120);
-
-    const now = performance.now();
-
-    if (lastPulseTime !== null) {
-
-      const intervalMs =
-        now - lastPulseTime;
-
-      const intervalSec =
-        intervalMs / 1000;
-
-      intervalEl.textContent =
-        intervalSec.toFixed(2);
-
-      calculatePower(intervalSec);
-    }
-
-    lastPulseTime = now;
-
-    setStatus(
-      "Impulzus érzékelve.",
-      "ok"
-    );
-  }
-
-  /*
-    Számítás:
-
-      1 impulzus = 1 / impKwh kWh
-
-      Ha két impulzus között T másodperc telik el:
-
-      kWh / s = 1 / (impKwh * T)
-
-      kW = 3600 / (impKwh * T)
-
-      W = 3 600 000 / (impKwh * T)
-  */
-
-  function calculatePower(intervalSec) {
-
-    const impKwh =
-      parseFloat(impKwhEl.value);
-
-    if (
-      !Number.isFinite(impKwh) ||
-      impKwh <= 0 ||
-      intervalSec <= 0
-    ) {
-      return;
-    }
-
-    const watts =
-      3600000 /
-      (impKwh * intervalSec);
-
-    /*
-      Ésszerű megjelenítés.
-    */
-    if (watts < 10) {
-
-      powerEl.textContent =
-        watts.toFixed(2);
-
-    } else if (watts < 1000) {
-
-      powerEl.textContent =
-        watts.toFixed(1);
-
-    } else {
-
-      powerEl.textContent =
-        Math.round(watts).toLocaleString("hu-HU");
-    }
-  }
-
-  function processFrame() {
-
-    if (!running) {
-      return;
-    }
-
-    try {
-
-      const brightness =
-        getTargetBrightness();
-
-      detectPulse(brightness);
-
-    } catch (error) {
-
-      console.error(error);
-
-    }
-
-    requestAnimationFrame(processFrame);
-  }
+);
 
 </script>
 
